@@ -55,13 +55,13 @@ func (this *ValiDate) addErr(err error) {
 }
 
 // 匹配正整数
-func (this *ValiDate) Int(Name, Msg string, Default interface{}) *ValiDate {
-	this.valid(Name, RgxNumberPositive, Msg, Default)
+func (this *ValiDate) Int(Name, Msg string, Default ...int) *ValiDate {
+	this.valid(Name, RgxNumberPositive, Msg, isInt(Default...))
 	return this
 }
 
 // 匹配数字范围
-func (this *ValiDate) RangeNum(Name string, Min, Max int, Msg string, Default interface{}) *ValiDate {
+func (this *ValiDate) Range(Name string, Min, Max int, Msg string, Default ...int) *ValiDate {
 	rangeNum := func(v string) {
 		var err error
 		i, err := strconv.Atoi(v)
@@ -72,13 +72,19 @@ func (this *ValiDate) RangeNum(Name string, Min, Max int, Msg string, Default in
 			this.addErr(fmt.Errorf(formatErr, Name, Msg))
 		}
 	}
-	this.valid(Name, RgxNumber, Msg, Default, rangeNum)
+	this.valid(Name, RgxNumber, Msg, isInt(Default...), rangeNum)
+	return this
+}
+
+// 匹配Bool
+func (this *ValiDate) Bool(Name, Msg string, Default ...bool) *ValiDate {
+	this.valid(Name, RgxBool, Msg, isBool(Default...))
 	return this
 }
 
 // 通用正则匹配文本
-func (this *ValiDate) Normal(Name string, Rgx string, Msg string, Default interface{}) *ValiDate {
-	this.valid(Name, Rgx, Msg, Default)
+func (this *ValiDate) Normal(Name string, Rgx string, Msg string, Default ...string) *ValiDate {
+	this.valid(Name, Rgx, Msg, isString(Default...))
 	return this
 }
 
@@ -99,7 +105,6 @@ func (this *ValiDate) valid(Name string, Rgx string, Msg string, Default interfa
 			} else {
 				for _, v := range op {
 					v(this.input[Name][0])
-					//v.Call([]reflect.Value{reflect.ValueOf(this.input[Name][0])})
 				}
 			}
 			defer wg.Done()
@@ -125,9 +130,6 @@ func (this *ValiDate) valid(Name string, Rgx string, Msg string, Default interfa
 				if !date.Rgx.MatchString(val[0]) {
 					err = fmt.Errorf(formatErr, date.Name, date.Msg)
 				}
-				//else {
-				//	this.input[date.Name] = []string{val[0]}
-				//}
 			}
 		}
 	})
@@ -151,7 +153,7 @@ func (this *ValiDate) Exec() *ValiDate {
 }
 
 //Beego重新设置函数
-func (this *ValiDate) ParamReset() {
+func (this *ValiDate) ParamReset() (*data) {
 	this.Exec()
 	if len(this.Error) > 0 {
 		show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, this.Error[0].Error(), "")
@@ -161,6 +163,10 @@ func (this *ValiDate) ParamReset() {
 	for k, v := range this.input {
 		bTemp.SetParam(k, v[0])
 	}
+
+	return &data{
+		controller: this.controller,
+	}
 }
 
 //验证分页
@@ -168,4 +174,27 @@ func (this *ValiDate) Pagination() *ValiDate {
 	this.valid("page", RgxNumberPositive, "当前页码", nil)
 	this.valid("page_size", RgxNumberPositive, "显示数量", nil)
 	return this
+}
+
+func isInt(Default ...int) (Value interface{}) {
+	if len(Default) > 0 {
+		Value = strconv.Itoa(Default[0])
+	}
+	return
+}
+func isString(Default ...string) (Value interface{}) {
+	if len(Default) > 0 {
+		Value = Default[0]
+	}
+	return
+}
+func isBool(Default ...bool) (Value interface{}) {
+	if len(Default) > 0 {
+		if Default[0] {
+			Value = "true"
+		} else {
+			Value = "false"
+		}
+	}
+	return
 }
