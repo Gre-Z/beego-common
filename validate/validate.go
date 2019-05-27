@@ -60,6 +60,12 @@ func (this *ValiDate) Int(Name, Msg string, Default ...int) *ValiDate {
 	return this
 }
 
+// 匹配浮点数
+func (this *ValiDate) Float(Name, Msg string, Default ...float64) *ValiDate {
+	this.valid(Name, RgxFloat, Msg, isFloat(Default...))
+	return this
+}
+
 // 匹配数字范围
 func (this *ValiDate) Range(Name string, Min, Max int, Msg string, Default ...int) *ValiDate {
 	rangeNum := func(v string) {
@@ -195,6 +201,13 @@ func isBool(Default ...bool) (Value interface{}) {
 		} else {
 			Value = "false"
 		}
+	}
+	return
+}
+
+func isFloat(Default ...float64) (Value interface{}) {
+	if len(Default) > 0 {
+		Value = Default[0]
 	}
 	return
 }

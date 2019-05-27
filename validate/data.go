@@ -26,3 +26,9 @@ func (this *data) GetString(Name string) string {
 	return s
 
 }
+
+func (this *data) GetFloat(Name string) float64 {
+	s, _ := this.controller.GetFloat(Name)
+	return s
+
+}
