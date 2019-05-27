@@ -10,6 +10,7 @@ const (
 	RgxAsc            = `(asc|desc)`
 	RgxNumberPositive = `[1-9]\d*$`        //匹配正整数
 	RgxChinese        = "[\u4e00-\u9fa5]+" // 匹配中文
+	RgxFloat          = `(-?\d+)(\.\d+)?`
 )
 
 //这是数字的长度
