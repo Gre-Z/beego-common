@@ -12,15 +12,6 @@ import (
 )
 
 var mt sync.Mutex
-var nonExistent = "【%s】必须存在   /   注释:%s"
-var formatErr = "【%s】内容不符合要求   /   注释:%s"
-
-func SetNonExistent(format string) {
-	nonExistent = format
-}
-func SetFormatErr(format string) {
-	formatErr = format
-}
 
 type ValiDate struct {
 	date       map[string]Date
@@ -162,7 +153,12 @@ func (this *ValiDate) Exec() *ValiDate {
 func (this *ValiDate) ParamReset() (*data) {
 	this.Exec()
 	if len(this.Error) > 0 {
-		show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, this.Error[0].Error(), "")
+		if isDebug {
+			show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, this.Error[0].Error(), "")
+		} else {
+			show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, "", "")
+		}
+
 	}
 	bTemp := this.controller.Ctx.Input
 	bTemp.ResetParams()
@@ -204,7 +200,6 @@ func isBool(Default ...bool) (Value interface{}) {
 	}
 	return
 }
-
 func isFloat(Default ...float64) (Value interface{}) {
 	if len(Default) > 0 {
 		Value = Default[0]
