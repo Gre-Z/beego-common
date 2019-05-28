@@ -27,7 +27,7 @@ type DB struct {
 var eor error
 var db DB
 
-func init() {
+func Init() {
 	db.Default, eor = gorm.Open("mysql",
 		beego.AppConfig.String("mysql.user")+
 			":"+

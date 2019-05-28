@@ -13,7 +13,7 @@ type RD struct {
 var rd RD
 var Eor error
 
-func init() {
+func Init() {
 	dbname, Eor := beego.AppConfig.Int("redis.dbname")
 	if Eor != nil {
 		dbname = 0
@@ -24,8 +24,8 @@ func init() {
 func NewClient(dbname int) {
 	rd.myDefault = redis.NewClient(&redis.Options{
 		Addr:     beego.AppConfig.String("redis.addr"),
-		Password: beego.AppConfig.String("redis.password"), // no password set
-		DB:       dbname,                                   // use default DB
+		Password: beego.AppConfig.String("redis.password"),
+		DB:       dbname,
 	})
 	_, Eor = rd.myDefault.Ping().Result()
 	if Eor != nil {
@@ -38,4 +38,9 @@ func NewClient(dbname int) {
 
 func (RD) RedisNew() *redis.Client {
 	return rd.myDefault
+}
+
+func ChangeClient(client *redis.Client) RD {
+	rd.myDefault = client
+	return rd
 }
