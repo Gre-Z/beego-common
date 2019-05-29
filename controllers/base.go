@@ -19,7 +19,6 @@ type BaseControllers struct {
 }
 
 func (b *BaseControllers) Prepare() {
-	//b.Valid = validate.NewValid(b.Input(), &b.Controller)
 }
 func (b *BaseControllers) NewValid() *validate.ValiDate {
 	return validate.NewValid(b.Input(), &b.Controller)

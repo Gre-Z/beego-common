@@ -16,16 +16,10 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"time"
 )
 
 //gorm model
-type Model struct {
-	Id        int64 `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
-}
+
 type DB struct {
 	Default *gorm.DB
 }
@@ -33,7 +27,7 @@ type DB struct {
 var eor error
 var db DB
 
-func init() {
+func Init() {
 	db.Default, eor = gorm.Open("mysql",
 		beego.AppConfig.String("mysql.user")+
 			":"+
