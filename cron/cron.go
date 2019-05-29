@@ -3,7 +3,7 @@ package cron
 import (
 	"errors"
 	"fmt"
-	"github.com/Gre-Z/beego-common/mysql"
+	"github.com/Gre-Z/common"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/toolbox"
@@ -24,7 +24,7 @@ type Cron struct {
 }
 
 type CronTask struct {
-	mysql.Model
+	common.Model
 	TaskName   string `json:"task_name" gorm:"unique_index"`
 	Controller string `json:"controller"`
 	Func       string `json:"func"`
@@ -77,7 +77,7 @@ func (this *Cron) RegisterMethod(values ...interface{}) {
 				Func:       method,
 				Controller: path,
 				FuncName:   s,
-				ParamsNum:  method.Type().NumIn()-1,
+				ParamsNum:  method.Type().NumIn() - 1,
 			}
 			this.mt.Lock()
 			this.taskMap[path+":"+s] = taskDetail
