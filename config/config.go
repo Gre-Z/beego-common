@@ -23,7 +23,7 @@ func Init() (config Config) {
 func initMysql(config *Config) {
 	user := beego.AppConfig.String("mysql.user")
 	password := beego.AppConfig.String("mysql.password")
-	addr := beego.AppConfig.String("mysql.host")
+	addr := beego.AppConfig.String("mysql.addr")
 	dbname := beego.AppConfig.String("mysql.dbname")
 	singularTable := beego.AppConfig.DefaultBool("mysql.singularTable", false)
 	logMode := beego.AppConfig.DefaultBool("mysql.logMode", false)
