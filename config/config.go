@@ -21,21 +21,27 @@ func Init() (config Config) {
 }
 
 func initMysql(config *Config) {
-	user := beego.AppConfig.String("mysql.user")
-	password := beego.AppConfig.String("mysql.password")
-	addr := beego.AppConfig.String("mysql.addr")
-	dbname := beego.AppConfig.String("mysql.dbname")
-	singularTable := beego.AppConfig.DefaultBool("mysql.singularTable", false)
-	logMode := beego.AppConfig.DefaultBool("mysql.logMode", false)
-	maxIdle := beego.AppConfig.DefaultInt("mysql.maxIdle", 0)
-	maxOpen := beego.AppConfig.DefaultInt("maxOpen", 0)
-
+	Add := func(name string) string {
+		return "mysql." + name
+	}
+	user := beego.AppConfig.String(Add("user"))
+	password := beego.AppConfig.String(Add("password"))
+	addr := beego.AppConfig.String(Add("addr"))
+	dbname := beego.AppConfig.String(Add("dbname"))
+	singularTable := beego.AppConfig.DefaultBool(Add("singularTable"), false)
+	logMode := beego.AppConfig.DefaultBool(Add("logMode"), false)
+	maxIdle := beego.AppConfig.DefaultInt(Add("maxIdle"), 0)
+	maxOpen := beego.AppConfig.DefaultInt(Add("maxOpen"), 0)
+	connectName := beego.AppConfig.DefaultString("connectName", "default")
+	autoMigrate := beego.AppConfig.DefaultBool("autoMigrate", false)
 	config.Mysql = mysql.Options{
 		User: user, Password: password, Addr: addr, Dbname: dbname,
 		SingularTable: singularTable,
 		LogMode:       logMode,
 		MaxIdle:       maxIdle,
 		MaxOpen:       maxOpen,
+		ConnectName:   connectName,
+		AutoMigrate:   autoMigrate,
 	}
 
 }
