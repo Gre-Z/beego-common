@@ -7,8 +7,11 @@ import (
 
 type ServerJson struct{}
 
+func NewShow() *ServerJson {
+	return new(ServerJson)
+}
 
-func (s ServerJson) ServeShow(c *beego.Controller, code int, msg string, data interface{}, f ...func()) {
+func (s *ServerJson) ServeShow(c *beego.Controller, code int, msg string, data interface{}, f ...func()) {
 	output := c.Ctx.Output
 	retData := map[string]interface{}{
 		"code": code,
@@ -24,4 +27,3 @@ func (s ServerJson) ServeShow(c *beego.Controller, code int, msg string, data in
 	}
 	c.StopRun()
 }
-

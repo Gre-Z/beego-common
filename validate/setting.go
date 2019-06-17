@@ -17,9 +17,5 @@ func SetIsDebug(bl bool) {
 }
 
 func init() {
-	b, e := beego.AppConfig.Bool("validate.isDebug")
-	if e != nil {
-		isDebug = false
-	}
-	isDebug = b
+	isDebug = beego.AppConfig.DefaultBool("validate.isDebug", false)
 }

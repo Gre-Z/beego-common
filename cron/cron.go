@@ -98,7 +98,7 @@ func (this *Cron) Restart(task CronTask) (error) {
 	if e != nil {
 		return e
 	}
-	newTask := toolbox.NewTask(task.TaskName, task.Spec, func() error {
+	fc := func() error {
 		if cron.debug {
 			this.log(task.TaskName, task)
 		}
@@ -114,7 +114,9 @@ func (this *Cron) Restart(task CronTask) (error) {
 		}
 		value.Func.Call(params)
 		return nil
-	})
+	}
+	go fc()
+	newTask := toolbox.NewTask(task.TaskName, task.Spec, fc)
 	toolbox.DeleteTask(task.TaskName)
 	toolbox.AddTask(task.TaskName, newTask)
 	return nil

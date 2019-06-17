@@ -154,11 +154,10 @@ func (this *ValiDate) ParamReset() (*data) {
 	this.Exec()
 	if len(this.Error) > 0 {
 		if isDebug {
-			show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, this.Error[0].Error(), "")
+			show.NewShow().ServeShow(this.controller, http.StatusBadRequest, this.Error[0].Error(), "")
 		} else {
-			show.ServerJson{}.ServeShow(this.controller, http.StatusBadRequest, "", "")
+			show.NewShow().ServeShow(this.controller, http.StatusBadRequest, "", "")
 		}
-
 	}
 	bTemp := this.controller.Ctx.Input
 	bTemp.ResetParams()
