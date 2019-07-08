@@ -2,12 +2,12 @@ package config
 
 import (
 	"github.com/Gre-Z/common/mysql"
+	"github.com/Gre-Z/common/redis"
 	"github.com/astaxie/beego"
-	"github.com/go-redis/redis"
 )
 
 type Config struct {
-	Redis *redis.Options
+	Redis redis.Options
 	Mysql mysql.Options
 }
 
@@ -53,7 +53,7 @@ func initRedis(config *Config) {
 	if err != nil {
 		db = 0
 	}
-	config.Redis = &redis.Options{
+	config.Redis = redis.Options{
 		Addr:     addr,
 		Password: password,
 		DB:       db,

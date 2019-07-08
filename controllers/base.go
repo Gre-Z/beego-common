@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Gre-Z/beego-common/show"
 	"github.com/Gre-Z/beego-common/validate"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/context"
 	"net/http"
 	"strings"
 )
@@ -15,38 +15,45 @@ type BaseControllers struct {
 	beego.Controller
 }
 
-//用于过滤url路径
-type _IgnoreLoginer interface {
-	IgLogin() []string
+// 用于过滤url路径
+type _Ignore interface {
+	Ignore() []string
+}
+
+// 用户 返回 token
+type _JwtParser interface {
+	JwtParse(string) (error)
 }
 
 func (b *BaseControllers) Prepare() {
 	b.parseLogin()
 }
+
 func (b *BaseControllers) NewValid() *validate.ValiDate {
 	return validate.NewValid(b.Input(), &b.Controller)
 }
 
-func (b *BaseControllers) Show(code int, msg string, data interface{}, f ...func()) {
+func (b *BaseControllers) Show(code int, msg interface{}, data interface{}, f ...func()) {
 	show.NewShow().ServeShow(&b.Controller, code, msg, data, f...)
 }
 
 func (b *BaseControllers) parseLogin() {
-	token := excludeToken(&b.Controller, b.Ctx.Input.URL())
-	if !token {
-		//解析token
-		fmt.Println("请登录")
-		b.StopRun()
-	} else {
-		//无需解析的呢轮毂
-		fmt.Println("无需登陆")
+	jump := excludeLogin(&b.Controller, b.Ctx.Input.URL())
+	if !jump {
+		if it, ok := b.AppController.(_JwtParser); ok {
+			Authorization := b.Ctx.Request.Header.Get("Authorization")
+			err := it.JwtParse(Authorization)
+			if err != nil {
+				b.Show(http.StatusForbidden, err, nil)
+			}
+		}
 	}
 }
 
-func excludeToken(c *beego.Controller, t string) bool {
+func excludeLogin(c *beego.Controller, t string) bool {
 	var ig []string
-	if it, ok := c.AppController.(_IgnoreLoginer); ok {
-		ig = it.IgLogin()
+	if it, ok := c.AppController.(_Ignore); ok {
+		ig = it.Ignore()
 	}
 	for _, v := range ig {
 		isOk := strings.HasSuffix(t, strings.ToLower(v)) || v == "ALL"
@@ -71,4 +78,35 @@ func requestsInit(b *beego.Controller) (err error) {
 	}
 
 	return
+}
+
+func AccessControllAllowOrigin() func(ctx *context.Context) bool {
+	return func(ctx *context.Context) bool {
+		origin := ctx.Request.Header.Get("Origin")
+		allowOrigin := []string{}
+		allow := beego.AppConfig.String("Access-Control-Allow-Methods")
+		if allow != "" {
+			allowOrigin = strings.Split(allow, ",")
+		}
+		ctx.Output.Header("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS")                               //允许post访问
+		ctx.Output.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization,X-XSRF-TOKEN") //header的类型
+		ctx.Output.Header("Access-Control-Max-Age", "1728000")
+		ctx.Output.Header("Access-Control-Allow-Credentials", "true")
+		res := false
+		for _, e := range allowOrigin {
+			if strings.EqualFold(e, origin) {
+				res = true
+				break
+			}
+		}
+		if res {
+			ctx.Output.Header("Access-Control-Allow-Origin", origin)
+		}
+		if ctx.Input.Method() == "OPTIONS" {
+			ctx.Output.SetStatus(204)
+			ctx.Output.Body([]byte(""))
+			return false
+		}
+		return true
+	}
 }
